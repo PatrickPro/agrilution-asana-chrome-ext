@@ -1,7 +1,7 @@
 'use strict';
 
 // 定数
-const SP_BADGES = ['?','0','0.5','1','2','3','5','8','13','21']
+const SP_BADGES = ['?','1','3','5','8','13','21']
 const badgeStyle = {
     background: '#3498db',
     borderRadius: '12px',
@@ -26,6 +26,7 @@ const countStyle = {
 
 const clearBadgeColor = '#95a5a6';
 const syncSubtaskBadgeColor = '#1abc9c';
+const asanaTaskIdBadgeColor = '#82999c';
 const completedBadgeColor = '#f39c12';
 
 
@@ -89,6 +90,7 @@ setInterval(() => {
             const syncSubtaskBadge = (()=>{
                 const badgeElement = document.createElement('span')
                 badgeElement.textContent = 'sync subtasks'
+
                 Object.keys(badgeStyle).forEach(key => {
                     badgeElement.style[key] = badgeStyle[key]
                 })
@@ -136,7 +138,29 @@ setInterval(() => {
                 }, false)
                 return badgeElement
             })()
-            badgeElements.push(syncSubtaskBadge);         
+            badgeElements.push(syncSubtaskBadge);   
+
+            const asanaTaskIdBadge = (()=>{
+                const badgeElement = document.createElement('span')
+                const taskId = location.href.split('/');
+                badgeElement.textContent = 'copy taskID'
+                
+
+                Object.keys(badgeStyle).forEach(key => {
+                    badgeElement.style[key] = badgeStyle[key]
+                })
+                badgeElement.style.background = asanaTaskIdBadgeColor
+
+                badgeElement.addEventListener('click', function(e){
+                    copyToClipboard(taskId[taskId.length-1]);
+                }, false)
+
+                return badgeElement
+            })()
+
+            badgeElements.push(asanaTaskIdBadge);  
+            
+                  
     
             // バッジコンテナの生成
             let badgeContainer = document.createElement('div')
@@ -147,10 +171,18 @@ setInterval(() => {
             badgeElements.forEach(e => {
                 badgeContainer.appendChild(e)
             })
+
+            
     
             // バッジコンテナをDOMに設置
             bodyContainer.insertBefore(badgeContainer, descriptionContainer)
         })
+}, 1000)
+
+
+
+ setInterval(() => {
+console.log(location.href);
 }, 1000)
 
 // ボード上カード列別のポイント合計を上部に表示
@@ -375,11 +407,13 @@ setInterval(() => {
                             totalStoryPointElement.style[key] = badgeStyle[key]
                         })
 
+                        if(listSectionHeader != null ){
                         // 右端に追加
                         listSectionHeader.appendChild(totalStoryPointElement)
                         // タイトルの左隣に追加
                         //const t = listSectionHeader.querySelector('.SectionRow-sectionName')
                         //listSectionHeader.insertBefore(totalStoryPointElement, t)
+                        }
                     }
                 }
                 // 終了StoryPoint (こちらは1ポイント以上あるときのみ表示)
@@ -509,3 +543,14 @@ function getElementsUntilRendered(parent, query, wait) {
         iter(0)
     })
 }
+
+function copyToClipboard(text) {
+  const input = document.createElement('input');
+  input.style.position = 'fixed';
+  input.style.opacity = 0;
+  input.value = text;
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand('Copy');
+  document.body.removeChild(input);
+};
